@@ -105,6 +105,18 @@
     attribution: { en: 'Map data © OpenStreetMap contributors · tiles © CARTO', ru: 'Данные карты © OpenStreetMap contributors · тайлы © CARTO' }
   };
 
+  function injectStyles() {
+    if (document.getElementById('route-map-styles')) return;
+    const st = document.createElement('style');
+    st.id = 'route-map-styles';
+    st.textContent = '@media (max-width:900px){' +
+      'route-map [data-body]{grid-template-columns:minmax(0,1fr) !important}' +
+      'route-map [data-map]{height:360px !important}' +
+      'route-map [data-list]{border-left:none !important;border-top:1px solid #E6E2D9 !important;max-height:none !important;overflow:visible !important}' +
+      '}';
+    document.head.appendChild(st);
+  }
+
   class RouteMap extends HTMLElement {
     static get observedAttributes() { return ['lang']; }
 
@@ -113,6 +125,7 @@
       this._lang = this.getAttribute('lang') === 'ru' ? 'ru' : 'en';
       this.routeIndex = 0;
       this.activeStop = 0;
+      injectStyles();
       this.build();
       this._built = true;
       loadLeaflet().then((L) => { this.L = L; this.initMap(); }).catch(() => {
@@ -156,12 +169,6 @@
       this.renderText();
       this.renderTabs();
       this.renderList();
-      if (window.matchMedia('(max-width:900px)').matches) {
-        const b = this.querySelector('[data-body]');
-        b.style.gridTemplateColumns = 'minmax(0,1fr)';
-        this.listEl.style.borderLeft = 'none';
-        this.listEl.style.borderTop = '1px solid #E6E2D9';
-      }
     }
 
     renderText() {
